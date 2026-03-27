@@ -1,0 +1,33 @@
+---
+- name: Installer Mosquitto MQTT Broker
+  hosts: all
+  become: yes
+  tasks:
+    - name: Mettre à jour le cache des paquets
+      apt:
+        update_cache: yes
+
+    - name: Installer Mosquitto
+      apt:
+        name:
+          - mosquitto
+        state: present
+
+    - name: Deploy custom Mosquitto configuration
+      template:
+        src: mosquitto.conf.j2
+        dest: /etc/mosquitto/conf.d/mosquitto.conf
+      notify:
+        - Restart Mosquitto
+
+    - name: Vérifier le statut du service Mosquitto
+      service:
+        name: mosquitto
+        state: started
+        enabled: true
+
+- handlers:
+  - name: Restart Mosquitto
+    service:
+      name: mosquitto
+      state: restarted

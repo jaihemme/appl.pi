@@ -1,0 +1,22 @@
+---
+- name: Initialisation du serveur
+  hosts: all
+  tasks:
+    - name: Vérifier la présence de .bash_aliases
+      stat:
+        path: ~/.bash_aliases_FORCED
+      register: bash_aliases_check
+
+    - name: Copier les fichiers de configuration bash
+      copy:
+        src: "files_home/{{item}}"
+        dest: "~/."
+        owner: "{{ ansible_user }}"
+        mode: '0644'
+      loop:
+        - .bash_aliases
+        - .bash_login
+        - .bash_logout
+        - .bashrc
+      when: not bash_aliases_check.stat.exists
+

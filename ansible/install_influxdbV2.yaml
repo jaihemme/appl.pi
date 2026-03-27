@@ -1,0 +1,57 @@
+---
+- name: Install and configure InfluxDB v2 on Raspberry Pi
+  hosts: all
+  become: yes
+  tasks:
+
+    # Étape 1 : Télécharger et ajouter la clé GPG
+    - name: Download InfluxDB GPG key
+      ansible.builtin.get_url:
+        url: https://repos.influxdata.com/influxdata-archive_compat.key
+        dest: /tmp/influxdata-archive_compat.key
+
+    - name: Verify GPG key checksum
+      ansible.builtin.command:
+        cmd: echo '393e8779c89ac8d958f81f942f9ad7fb82a25e133faddaf92e15b16e6ac9ce4c /tmp/influxdata-archive_compat.key' | sha256sum -c
+      register: gpg_check
+      failed_when: gpg_check.rc != 0
+
+    - name: Add GPG key to trusted sources
+      ansible.builtin.shell:
+        cmd: cat /tmp/influxdata-archive_compat.key | gpg --dearmor | tee /etc/apt/trusted.gpg.d/influxdata-archive_compat.gpg > /dev/null
+
+    # Étape 2 : Ajouter le dépôt InfluxData
+    - name: Add InfluxData repository
+      ansible.builtin.copy:
+        content: |
+          deb [signed-by=/etc/apt/trusted.gpg.d/influxdata-archive_compat.gpg] https://repos.influxdata.com/debian stable main
+        dest: /etc/apt/sources.list.d/influxdata.list
+
+    # Étape 3 : Mettre à jour les paquets et installer InfluxDB v2
+    - name: Update apt cache and install InfluxDB v2
+      ansible.builtin.apt:
+        update_cache: yes
+        name: influxdb2
+        state: present
+
+    # Étape 4 : Démarrer et activer le service InfluxDB
+    - name: Ensure InfluxDB is started and enabled at boot
+      ansible.builtin.service:
+        name: influxdb
+        state: started
+        enabled: yes
+
+    # Étape 5 : Configurer InfluxDB (setup initial)
+    - name: Run initial setup for InfluxDB (if not already done)
+      ansible.builtin.shell:
+        cmd: |
+          influx setup --username "{{ influx_username }}" \
+                       --password "{{ influx_password }}" \
+                       --org "{{ influx_org }}" \
+                       --bucket "{{ influx_bucket }}" \
+                       --retention "{{ influx_retention }}" \
+                       --force
+      args:
+        creates: /var/lib/influxdb/.setup-complete
+
+

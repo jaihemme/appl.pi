@@ -1,0 +1,11 @@
+---
+# handlers file for mosquitto
+- name: Restart Mosquitto
+  service:
+    name: mosquitto
+    state: restarted
+  become: yes
+
+- name: Validate sudoers
+  command: visudo -cf /etc/sudoers.d/pi-nopasswd
+  ignore_errors: yes

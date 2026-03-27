@@ -1,0 +1,32 @@
+--- DRAFT v1 – Playbook d'installation z-way-server ---
+- name: Installation de z-way-server sur Raspberry Pi
+  hosts: all
+  become: true     # Équivalent de sudo
+  gather_facts: true
+
+  tasks:
+    - name: Vérification de l'architecture (Optionnel mais recommandé)
+      ansible.builtin.debug:
+        msg: "Installation sur {{ ansible_architecture }}"
+
+    - name: Téléchargement et exécution du script d'installation officiel
+      ansible.builtin.shell: |
+        wget -q -O - https://storage.z-wave.me/RaspbianInstall | bash
+      args:
+        creates: /etc/init.d/Z-Way-Me  # Empêche la réexécution si déjà installé
+      register: install_result
+      changed_when: install_result.rc == 0
+
+    - name: Vérification du statut du service Z-Way
+      ansible.builtin.systemd:
+        name: Z-Way-Me
+        state: started
+        enabled: true
+      register: service_status
+      failed_when: service_status.failed
+
+    - name: Affichage du statut de l'installation
+      ansible.builtin.debug:
+        msg: "Installation terminée. Service actif: {{ service_status.active }}"
+--- END OF DRAFT ---
+~140 mots | Ton: Technique/Neutre | Langue: fr

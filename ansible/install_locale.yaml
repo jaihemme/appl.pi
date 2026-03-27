@@ -1,0 +1,36 @@
+---
+- name: Configurer la locale sur fr_CH.UTF-8
+  hosts: all
+  become: true
+
+  tasks:
+    - name: Installer le paquet locales (si nécessaire)
+      ansible.builtin.apt:
+        name: locales
+        state: present
+      when: ansible_facts['os_family'] == "Debian"
+
+    - name: Générer la locale fr_CH.UTF-8
+      community.general.locale_gen:
+        name: fr_CH.UTF-8
+        state: present
+
+    - name: Définir fr_CH.UTF-8 comme locale par défaut
+      ansible.builtin.command:
+        cmd: localectl set-locale LANG=fr_CH.UTF-8
+
+    - name: Mettre à jour /etc/default/locale
+      ansible.builtin.lineinfile:
+        path: /etc/default/locale
+        regexp: '^LANG='
+        line: 'LANG=fr_CH.UTF-8'
+        create: yes
+
+    - name: Vérifier si la locale est correctement configurée
+      ansible.builtin.command:
+        cmd: locale
+      register: locale_output
+
+    - name: Afficher les locales configurées
+      ansible.builtin.debug:
+        var: locale_output.stdout_lines

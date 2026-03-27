@@ -1,0 +1,24 @@
+---
+- name: Disable unused sevices
+  hosts: all
+  become: yes
+  become_method: sudo
+
+  tasks:
+    - name: Disable ModemManager.service
+      ansible.builtin.systemd_service:
+        name: ModemManager.service
+        enabled: false
+        masked: true
+        state: stopped
+
+    - name: Disable bluetooth.service
+      ansible.builtin.systemd_service:
+        name: bluetooth.service
+        enabled: false
+        masked: true
+        state: stopped
+
+    - name: reload daemon
+      ansible.builtin.systemd_service:
+        daemon-reload: true

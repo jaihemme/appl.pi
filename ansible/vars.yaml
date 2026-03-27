@@ -1,0 +1,5 @@
+influx_username: "user"          # Nom d'utilisateur pour InfluxDB
+influx_password: "password"      # Mot de passe pour l'utilisateur
+influx_org: "yogi"               # Nom de l'organisation
+influx_bucket: "iot"             # Nom du bucket par défaut
+influx_retention: "30d"          # Durée de rétention des données (exemple : 30 jours)

@@ -1,0 +1,13 @@
+[Unit]
+Description=service and resource monitoring daemon
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/monit -I -c /home/pi/.monitrc
+ExecStop=/usr/bin/monit quit
+ExecReload=/usr/bin/monit reload
+Restart=on-abnormal
+
+[Install]
+WantedBy=multi-user.target

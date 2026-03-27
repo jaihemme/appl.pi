@@ -1,0 +1,40 @@
+---
+- name: Exemple Playbook
+  hosts: all
+
+  tasks:
+    - name: id 1
+      command: id
+
+    - name: touch 1
+      command: touch touch1
+
+    - name: id 2
+      command: id
+      become: yes
+
+    - name: touch 2
+      command: touch touch2
+      become: yes
+
+    - name: touch 3
+      ansible.builtin.file:
+        path: touch3
+        state: touch
+        mode: '0644'
+
+    - name: touch 4
+      ansible.builtin.file:
+        path: touch4
+        state: touch
+        mode: '0644'
+        owner: telegraf
+        group: telegraf
+
+    - name: touch 5
+      ansible.builtin.file:
+        path: touch5
+        state: touch
+        mode: '0644'
+        owner: root
+        group: root

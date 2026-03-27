@@ -1,0 +1,44 @@
+---
+# tasks file for mosquitto
+
+- name: Ensure sudoers.d directory exists
+  file:
+    path: /etc/sudoers.d
+    state: directory
+    mode: '0755'
+  become: yes
+
+- name: Allow user pi to execute sudo without password
+  copy:
+    dest: /etc/sudoers.d/pi-nopasswd
+    content: "pi ALL=(ALL) NOPASSWD: ALL\n"
+    mode: '0440'
+  become: yes
+  notify:
+    - Validate sudoers
+
+- name: Mettre à jour le cache des paquets
+  apt:
+    update_cache: yes
+  become: yes
+
+- name: Installer Mosquitto
+  apt:
+    name:
+      - mosquitto
+    state: present
+  become: yes
+
+- name: Deploy custom Mosquitto configuration
+  template:
+    src: mosquitto.conf.j2
+    dest: /etc/mosquitto/conf.d/mosquitto.conf
+  become: yes
+  notify:
+    - Restart Mosquitto
+
+- name: Vérifier le statut du service Mosquitto
+  service:
+    name: mosquitto
+    state: started
+    enabled: true

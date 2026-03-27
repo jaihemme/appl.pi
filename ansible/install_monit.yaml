@@ -1,0 +1,65 @@
+---
+- name: Installer et configurer Monit
+  hosts: all
+
+  vars:
+    monit_version: "5.35.2"
+    monit_archive: "monit-{{ monit_version }}-linux-arm32.tar.gz"
+    monit_archive_url: "https://mmonit.com/monit/dist/binary/{{ monit_version }}/{{ monit_archive }}"
+    monit_install_dir: "/home/pi/monit"  # Dossier d'installation de Monit
+    monit_include_dir: "{{ monit_install_dir }}/include" #Dossier d'inclusion
+    monit_logfile: "{{ monit_install_dir }}/monit.log"
+    monit_http_port: 2812 #Port d'écoute de l'interface Monit
+    monit_http_allow: "::1" #Autorise uniquement localhost ipv6 à accéder à l'interface
+
+  tasks:
+
+    - name: Installer monit
+      apt:
+        name:
+          - monit
+        update_cache: yes
+        cache_valid_time: 3600
+        state: present
+      become: yes
+
+    - name: Créer le dossier monit
+      ansible.builtin.file:
+        path: "{{ monit_install_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Créer le dossier include pour les configurations
+      ansible.builtin.file:
+        path: "{{ monit_include_dir }}"
+        state: directory
+        mode: '0755'
+
+    - name: Configuration de base de Monit
+      ansible.builtin.template:
+        src: templates/monitrc.j2
+        dest: "/home/pi/.monitrc"
+        mode: '0600'
+      notify: Restart Monit
+
+    - name: Configuration du service (niveau user)
+      ansible.builtin.template:
+        src: templates/monit.service.j2
+        dest: ".config/systemd/user/monit.service"
+        mode: '0600'
+      notify: Restart Monit
+
+    - name:  S'assurer que Monit est démarré et actif au démarrage
+      ansible.builtin.systemd:
+        name: monit
+        scope: user
+        state: started
+
+  handlers:
+    - name: Restart Monit
+      ansible.builtin.systemd:
+        name: monit
+        scope: user
+        daemon_reload: true
+        enabled: true
+        state: restarted

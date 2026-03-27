@@ -1,0 +1,5 @@
+ check process influxdb with pidfile /var/lib/influxdb/influxd.pid
+   start program = "/usr/bin/sudo systemctl start influxdb"
+   stop program = "/usr/bin/sudo systemctl stop influxdb"
+   if 4 restarts within 20 cycles then timeout
+   if failed host localhost port 8086 with protocol http and request "/health" with timeout 25 seconds for 4 times within 5 cycles then restart

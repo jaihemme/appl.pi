@@ -1,0 +1,4 @@
+allow_anonymous {{ mosquitto_config.allow_anonymous | lower }}
+{% for listener in mosquitto_config.listeners %}
+listener {{ listener.port }} {{ listener.address }}
+{% endfor %}

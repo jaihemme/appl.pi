@@ -1,0 +1,9 @@
+set daemon  120
+
+set httpd port {{ monit_http_port }}
+    allow {{ monit_http_allow }}
+
+set log {{ monit_logfile }}
+# set pidfile $HOME/.monit.pid # default
+
+include {{ monit_include_dir }}

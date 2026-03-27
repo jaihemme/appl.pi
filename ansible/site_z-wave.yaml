@@ -1,0 +1,13 @@
+---
+- name: Exécution de tous les playbooks
+  hosts: z-wave.local
+  gather_facts: no
+  tasks:
+    - name: Initialise le home directory
+      ansible.builtin.import_playbook: init_home.yaml
+
+    - name: Installe les locales
+      ansible.builtin.import_playbook: install_locale.yaml
+
+    - name: Installe monit
+      ansible.builtin.import_playbook: install_monit.yaml

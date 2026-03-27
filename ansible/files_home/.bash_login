@@ -1,0 +1,12 @@
+
+# print some informations
+#last -1 reboot | head -n 1
+uptime
+echo HISTFILE: $HISTFILE
+echo "Check accents=éèà umlaut=öüä euro=€"
+
+if [ -f ~/.bashrc ]; then
+    . ~/.bashrc
+fi
+
+### eof ###

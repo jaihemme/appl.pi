@@ -1,0 +1,34 @@
+---
+- name: Installer et configurer Telegraf
+  hosts: all
+
+  tasks:
+    - name: Installer monit
+      apt:
+        name:
+          - telegraf
+        update_cache: yes
+        cache_valid_time: 3600
+        state: present
+      become: yes
+
+    - name: Ajoute le groupe telegraf pour autoriser la lecture de telegraf.pid
+      ansible.builtin.user:
+        name: pi
+        groups: telegraf
+        append: yes
+
+    - name: Ajouter une option pour créer un pidfile utile à monit
+      ansible.builtin.lineinfile:
+        path: /etc/default/telegraf
+        line: TELEGRAF_OPTS="--pidfile=/var/lib/telegraf/telegraf.pid"
+        create: no
+      become: yes
+
+    # Activer le monitoring
+    - name: Configuration du monitoring
+      ansible.builtin.template:
+        src: templates/monit.conf.telegraf.j2
+        dest: "/home/pi/monit/include/telegraf"
+        mode: '0600'
+      become: no

@@ -1,0 +1,4 @@
+ansible-playbook -i inventory init_home.yaml
+ansible-playbook -i inventory install_mqtt.yaml
+ansible-playbook -i inventory install_influxdb.yaml --extra-vars "@vars.yaml"
+

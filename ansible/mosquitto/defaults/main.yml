@@ -1,0 +1,10 @@
+---
+# defaults file for mosquitto
+mosquitto_config:
+  allow_anonymous: true
+  listeners:
+    - port: 1883
+      address: "0.0.0.0"
+    - port: 1883
+      address: "::"
+
